@@ -130,6 +130,22 @@ function curl_req_json($url, $method, $args = []){
         CURLOPT_RETURNTRANSFER      => true
     ]);
 
+    // Verification args
+    if(!empty($args)){
+
+        // Convert to json
+        $json = json_encode($args);
+
+        // Config header to json
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        // Send json data
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+    }
+
     // Save the return of command exec
     $response = curl_exec($curl);
 
