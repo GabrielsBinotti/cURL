@@ -44,7 +44,6 @@ $response = curl_exec($curl); // executa a requisição
 curl_close($curl); // fecha a conexão
 
 echo $response;
-*/
 
 $curl = curl_init(); // iniciando o curl
 
@@ -74,9 +73,12 @@ $response = curl_exec($curl); // executa a requisição
 curl_close($curl); // fecha a conexão
 
 echo $response;
+*/
+
+
 
 /**
- * The function make simple request without authentication.
+ * The function make simple request without authentication with args object.
  * The function receive 3 paraments:
  * $url => API url  -  required
  * $method => GET, POST, DELETE, PUT (are more comuns) - required
@@ -87,20 +89,53 @@ function curl_req_obj($url, $method, $args = []){
     // Open to connection
     $curl = curl_init();
 
-
+    // Config default
     curl_setopt_array($curl, [
-
+        CURLOPT_URL                 => $url,
+        CURLOPT_CUSTOMREQUEST       => $method,
+        CURLOPT_RETURNTRANSFER      => true
     ]);
 
     // Verification args
     if(!empty($args)){
-
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
     }
 
+    // Save the return of command exec
     $response = curl_exec($curl);
 
     // Close to connection
     curl_close($curl);
 
+    // Return the data for user
+    return $response;
+}
+
+/**
+ * The function make simple request withou authetication with args json.
+ * $url => API url  -  required
+ * $method => GET, POST, DELETE, PUT (are more comuns) - required
+ * $args => array with form data, in format object. When you not informed it is empty to default. - optional
+ */
+
+function curl_req_json($url, $method, $args = []){
+
+    // Open to connection
+    $curl = curl_init();
+
+    // Config default
+    curl_setopt_array($curl, [
+        CURLOPT_URL                 => $url,
+        CURLOPT_CUSTOMREQUEST       => $method,
+        CURLOPT_RETURNTRANSFER      => true
+    ]);
+
+    // Save the return of command exec
+    $response = curl_exec($curl);
+
+    // Close to connection
+    curl_close($curl);
+
+    // Return the data for user
     return $response;
 }

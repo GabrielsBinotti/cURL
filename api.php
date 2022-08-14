@@ -18,7 +18,7 @@ echo "POST <br>";
 
 
 $input = file_get_contents('php://input');
-$array = json_decode($input, true);
+$array = json_decode($input);
 echo "<pre>";
-print_r($array);
+print_r($_POST);
 echo "</pre>";
