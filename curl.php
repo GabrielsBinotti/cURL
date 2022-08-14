@@ -73,3 +73,33 @@ $response = curl_exec($curl); // executa a requisição
 curl_close($curl); // fecha a conexão
 
 echo $response;
+
+/**
+ * The function make simple request without authentication.
+ * The function receive 3 paraments:
+ * $url => API url  -  required
+ * $method => GET, POST, DELETE, PUT (are more comuns) - required
+ * $args => array with form data, in format object. When you not informed it is empty to default. - optional
+ */
+function curl_req_obj($url, $method, $args = []){
+
+    // Open to connection
+    $curl = curl_init();
+
+
+    curl_setopt_array($curl, [
+
+    ]);
+
+    // Verification args
+    if(!empty($args)){
+
+    }
+
+    $response = curl_exec($curl);
+
+    // Close to connection
+    curl_close($curl);
+
+    return $response;
+}
