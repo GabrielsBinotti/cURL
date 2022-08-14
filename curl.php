@@ -2,6 +2,7 @@
 
 /*
 Requisição get simples, como se estivesse acessando pela web
+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
 
 $curl = curl_init(); // iniciando o curl
 
