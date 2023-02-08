@@ -1,169 +1,83 @@
 <?php
 
-/**
- * The function make simple request without authentication with args object.
- * The function receive 3 paraments:
- * $url => API url  -  required
- * $method => GET, POST, DELETE, PUT (are more comuns) - required
- * $args => array with form data, in format object. When you not informed it is empty to default. - optional
- * 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
- */
-function curl_req_obj($url, $method, $args = []){
+class CurlRequest
+{
+    private static $instance = null;
 
-    // Open to connection
-    $curl = curl_init();
 
-    // Config default
-    curl_setopt_array($curl, [
-        CURLOPT_URL                 => $url,
-        CURLOPT_CUSTOMREQUEST       => $method,
-        CURLOPT_RETURNTRANSFER      => true
-    ]);
+    // Define methods private
+    private function __construct(){}
+    private function __clone(){}
+    private function __wakeup(){}
 
-    // Verification args
-    if(!empty($args)){
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
+
+    // Method to return the new instance
+    public static function getInstance()
+    {
+        if(self::$instance === null)
+        {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
 
-    // Save the return of command exec
-    $response = curl_exec($curl);
+    /**
+     * Makes a HTTP request to the specified URL using cURL.
+     *
+     * @param string $url The URL to make the request to
+     * @param array $data An array of data to send with the request (applicable only for POST requests)
+     * @param array $headers An array of headers to send with the request
+     * @param string $method The HTTP method to use for the request (defaults to POST)
+     * @param array $auth An array containing username and password for basic authentication
+     *
+     * @return mixed The response from the server, decoded as an array
+     */
 
-    // Close to connection
-    curl_close($curl);
+    public function makeRequest($url, $data = [], $headers = [], $method = 'POST', $auth = [])
+    {
+        // Initialize o curl
+        $ch = curl_init();
 
-    // Return the data for user
-    return $response;
-}
+        // Define options
+        curl_setopt($ch, CURLOPT_URL, $url); // Define URL
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Define if accept return string
+        curl_setopt($ch, CURLOPT_ENCODING, ''); // Define the type accept encondig
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 10); // Define the max redirects;
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Define in seconds max time to response of request
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Define accept redirect
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); // Define version of request HTTP
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method)); // Define custom method to request
 
-/**
- * The function make simple request withou authetication with args json.
- * $url => API url  -  required
- * $method => GET, POST, DELETE, PUT (are more comuns) - required
- * $args => array with form data, in format object. When you not informed it is empty to default. - optional
- */
+        // Verify if the method is a POST
+        if($method === 'POST')
+        {
+            curl_setopt($ch, CURLOPT_POST, true); // Define the form request will do, information then data will be send in body of request
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
 
-function curl_req_json($url, $method, $args = []){
+        // Verify if headers was config
+        if(!empty($headers))
+        {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // Config headers HTTP request
+        }
 
-    // Open to connection
-    $curl = curl_init();
+        // Verify if was pass authentication
+        if(!empty($auth))
+        {
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC); // Define type basic auth
+            curl_setopt($ch, CURLOPT_USERPWD, $auth['username'] . ':' . $auth['password']); // Define user and password
+        }
 
-    // Config default
-    curl_setopt_array($curl, [
-        CURLOPT_URL                 => $url,
-        CURLOPT_CUSTOMREQUEST       => $method,
-        CURLOPT_RETURNTRANSFER      => true
-    ]);
+        $response = curl_exec($ch); // Response of the request
+        curl_close($ch); // Close the request
+        return json_decode($response, true); // Return response im format obj, case you went other type define false
 
-    // Verification args
-    if(!empty($args)){
-
-        // Convert to json
-        $json = json_encode($args);
-
-        // Config header to json
-        $headers = [
-            'Accept: application/json',
-            'Content-Type: application/json'
-        ];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        // Send json data
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
     }
-
-    // Save the return of command exec
-    $response = curl_exec($curl);
-
-    // Close to connection
-    curl_close($curl);
-
-    // Return the data for user
-    return $response;
 }
 
-/**
- * The function make simple request qith authetication basicAuth with args object.
- * $url => API url  -  required
- * $method => GET, POST, DELETE, PUT (are more comuns) - required
- * $args => array with form data, in format object. When you not informed it is empty to default. - optional
- * $user => user to authentication
- * $pass => password to authetication
- */
-function curl_req_obj_basicAuth($url, $method, $args = [], $user, $pass){
 
-    // Open to connection
-    $curl = curl_init();
 
-    // Config default
-    curl_setopt_array($curl, [
-        CURLOPT_URL                 => $url,
-        CURLOPT_CUSTOMREQUEST       => $method,
-        CURLOPT_RETURNTRANSFER      => true,
-        CURLOPT_HTTPAUTH            => CURLAUTH_BASIC,
-        CURLOPT_USERPWD             => "$user:$pass"
-    ]);
-
-    // Verification args
-    if(!empty($args)){
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $args);
-    }
-
-    // Save the return of command exec
-    $response = curl_exec($curl);
-
-    // Close to connection
-    curl_close($curl);
-
-    // Return the data for user
-    return $response;
-}
-
-/**
- * The function make simple request qith authetication basicAuth with args json.
- * $url => API url  -  required
- * $method => GET, POST, DELETE, PUT (are more comuns) - required
- * $args => array with form data, in format object. When you not informed it is empty to default. - optional
- * $user => user to authentication
- * $pass => password to authetication
- */
-
-function curl_req_json_basicAuth($url, $method, $args = [], $user, $pass){
-
-    // Open to connection
-    $curl = curl_init();
-
-    // Config default
-    curl_setopt_array($curl, [
-        CURLOPT_URL                 => $url,
-        CURLOPT_CUSTOMREQUEST       => $method,
-        CURLOPT_RETURNTRANSFER      => true,
-        CURLOPT_HTTPAUTH            => CURLAUTH_BASIC,
-        CURLOPT_USERPWD             => "$user:$pass"
-    ]);
-
-    // Verification args
-    if(!empty($args)){
-
-        // Convert to json
-        $json = json_encode($args);
-
-        // Config header to json
-        $headers = [
-            'Accept: application/json',
-            'Content-Type: application/json'
-        ];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        // Send json data
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-    }
-
-    // Save the return of command exec
-    $response = curl_exec($curl);
-
-    // Close to connection
-    curl_close($curl);
-
-    // Return the data for user
-    return $response;
-}
+// Exemple use
+$curlRequest = CurlRequest::getInstance();
+$response = $curlRequest->makeRequest($url, $data, $headers, $method, $auth);
