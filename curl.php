@@ -71,7 +71,7 @@ class CurlRequest
 
         $response = curl_exec($ch); // Response of the request
         curl_close($ch); // Close the request
-        return json_decode($response, true); // Return response im format obj, case you went other type define false
+        return json_decode($response, false); // Return response im format obj, case you went other type define true
 
     }
 }
